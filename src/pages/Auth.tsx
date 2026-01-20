@@ -74,15 +74,16 @@ const Auth = () => {
         }
       } else {
         const { error } = await signUp(email, password);
-
-        console.log("error", error)
-
         if (error) {
           if (error.message.includes('already registered')) {
             toast.error('Este email já está cadastrado');
-          } if (error.message.includes('Password should be at least 6 characters')) {
+          }
+          if (
+            error.message.includes('Password should be at least 6 characters')
+          ) {
             toast.error('Senha deve ter pelo menos 6 caracteres');
-          } if (error.message.includes('invalid email format')) {
+          }
+          if (error.message.includes('invalid email format')) {
             toast.error('Formato de email inválido');
           } else {
             toast.error(error.message);
