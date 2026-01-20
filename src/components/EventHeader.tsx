@@ -1,7 +1,15 @@
 import { Event } from '@/lib/types';
 import { Logo } from './Logo';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, Share2, Copy, ExternalLink, Settings } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Share2,
+  Copy,
+  ExternalLink,
+  Settings,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -20,13 +28,22 @@ export function EventHeader({ event, isOrganizer = false }: EventHeaderProps) {
   };
 
   const shareWhatsApp = () => {
-    const text = encodeURIComponent(
-      `⚽ ${event.name}\n📅 ${format(parseISO(event.date), "dd 'de' MMMM", { locale: ptBR })}\n⏰ ${event.time}\n📍 ${event.location}\n\n🔗 Confirme sua presença: ${eventUrl}`
-    );
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    const message = `⚽ ${event.name}
+📅 ${format(parseISO(event.date), "dd 'de' MMMM", { locale: ptBR })}
+⏰ ${event.time}
+📍 ${event.location}
+
+👉 Confirme sua presença:
+${eventUrl}`;
+
+    const text = encodeURIComponent(message);
+
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
-  const formattedDate = format(parseISO(event.date), "EEEE, dd 'de' MMMM", { locale: ptBR });
+  const formattedDate = format(parseISO(event.date), "EEEE, dd 'de' MMMM", {
+    locale: ptBR,
+  });
 
   return (
     <div className="space-y-6">

@@ -19,7 +19,9 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
 
   const { signIn, signUp, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -50,7 +52,7 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
@@ -77,7 +79,9 @@ const Auth = () => {
             toast.error(error.message);
           }
         } else {
-          toast.success('Conta criada com sucesso!');
+          toast.success(
+            'Enviamos um link para o seu email para confirmar seu cadastro!',
+          );
           navigate('/dashboard');
         }
       }
@@ -158,7 +162,11 @@ const Auth = () => {
               )}
             </div>
 
-            <Button type="submit" className="w-full h-12 text-base" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full h-12 text-base"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
