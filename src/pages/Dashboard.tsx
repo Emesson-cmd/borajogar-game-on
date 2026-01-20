@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/lib/types';
-import { Plus, Calendar, Users, LogOut, Loader2, ExternalLink, Trash2 } from 'lucide-react';
+import { Plus, Calendar, Users, LogOut, Loader2, ExternalLink, Trash2, Copy, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -69,6 +69,70 @@ const Dashboard = () => {
     }
   };
 
+  const handleDuplicateEvent = async (eventId: string) => {
+    try {
+      // Fetch the original event
+      const { data: eventData, error: eventError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single();
+
+      if (eventError) throw eventError;
+      if (!eventData) {
+        toast.error('Evento não encontrado');
+        return;
+      }
+
+      // Create new event with copied data (no participants)
+      const { data: newEvent, error: insertError } = await supabase
+        .from('events')
+        .insert({
+          organizer_id: eventData.organizer_id,
+          name: `${eventData.name} (Cópia)`,
+          date: eventData.date,
+          time: eventData.time,
+          location: eventData.location,
+          google_maps_url: eventData.google_maps_url,
+          player_limit: eventData.player_limit,
+          goalkeeper_limit: eventData.goalkeeper_limit,
+          is_open: eventData.is_open,
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+
+      // Copy event rules
+      const { data: rules, error: rulesError } = await supabase
+        .from('event_rules')
+        .select('*')
+        .eq('event_id', eventId);
+
+      if (rulesError) throw rulesError;
+
+      if (rules && rules.length > 0) {
+        const newRules = rules.map(rule => ({
+          event_id: newEvent.id,
+          rule_text: rule.rule_text,
+          order_index: rule.order_index,
+        }));
+
+        const { error: copyRulesError } = await supabase
+          .from('event_rules')
+          .insert(newRules);
+
+        if (copyRulesError) throw copyRulesError;
+      }
+
+      toast.success('Evento duplicado com sucesso!');
+      fetchEvents();
+    } catch (error) {
+      console.error('Error duplicating event:', error);
+      toast.error('Erro ao duplicar evento');
+    }
+  };
+
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -126,8 +190,8 @@ const Dashboard = () => {
                 className="bg-gradient-card rounded-xl border border-border/50 p-4 shadow-card animate-fade-in hover:border-primary/30 transition-colors"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-4 md:flex-row flex-col">
+                  <div className="flex-1 min-w-0 max-w-full">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="font-semibold text-lg truncate">{event.name}</h3>
                       {!event.is_open && (
@@ -151,20 +215,33 @@ const Dashboard = () => {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <Link to={`/event/${event.id}`}>
-                      <Button variant="outline" size="sm">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Ver
+                      <Button variant="outline" size="icon"
+                        className="text-muted-foreground hover:text-primary"
+                      >
+                        <ExternalLink className="w-4 h-4" />
                       </Button>
                     </Link>
                     <Link to={`/event/${event.id}/edit`}>
-                      <Button variant="secondary" size="sm">
-                        Editar
+                      <Button variant="outline"
+                        size="icon"
+                        className="text-muted-foreground hover:text-primary"
+                      >
+                        <Pencil className="w-4 h-4" />
                       </Button>
                     </Link>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="icon"
-                      className="text-muted-foreground hover:text-destructive"
+                      className="text-muted-foreground hover:text-primary"
+                      onClick={() => handleDuplicateEvent(event.id)}
+                      title="Duplicar evento"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="text-muted-foreground text-destructive "
                       onClick={() => handleDeleteEvent(event.id)}
                     >
                       <Trash2 className="w-4 h-4" />
