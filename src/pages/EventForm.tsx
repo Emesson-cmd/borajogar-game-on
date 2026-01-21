@@ -77,8 +77,7 @@ const EventForm = () => {
         .order('order_index', { ascending: true });
 
       if (rulesError) throw rulesError;
-      setRules(rulesData?.map(r => r.rule_text) || []);
-
+      setRules(rulesData?.map((r) => r.rule_text) || []);
     } catch (error) {
       console.error('Error fetching event:', error);
       toast.error('Erro ao carregar evento');
@@ -189,7 +188,11 @@ const EventForm = () => {
     <div className="min-h-screen bg-gradient-hero">
       <div className="container max-w-2xl mx-auto px-4 py-6">
         <header className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/dashboard')}
+          >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <Logo size="sm" />
@@ -269,7 +272,9 @@ const EventForm = () => {
                   min={1}
                   max={50}
                   value={playerLimit}
-                  onChange={(e) => setPlayerLimit(parseInt(e.target.value) || 20)}
+                  onChange={(e) =>
+                    setPlayerLimit(parseInt(e.target.value) || 0)
+                  }
                   className="h-12 bg-secondary border-border/50"
                 />
               </div>
@@ -281,7 +286,9 @@ const EventForm = () => {
                   min={1}
                   max={10}
                   value={goalkeeperLimit}
-                  onChange={(e) => setGoalkeeperLimit(parseInt(e.target.value) || 4)}
+                  onChange={(e) =>
+                    setGoalkeeperLimit(parseInt(e.target.value) || 0)
+                  }
                   className="h-12 bg-secondary border-border/50"
                 />
               </div>
@@ -353,7 +360,11 @@ const EventForm = () => {
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-12 text-base" disabled={saving}>
+          <Button
+            type="submit"
+            className="w-full h-12 text-base"
+            disabled={saving}
+          >
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
