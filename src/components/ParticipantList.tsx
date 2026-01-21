@@ -9,9 +9,10 @@ interface ParticipantListProps {
   participants: Participant[];
   limit?: number;
   isOrganizer?: boolean;
-  currentParticipantName?: string;
+  currentUserId?: string;
   onRemove: (id: string) => void;
   onSwitchRole: (id: string, newRole: ParticipantRole) => void;
+  onViewDetails?: (id: string) => void;
 }
 
 export function ParticipantList({
@@ -20,9 +21,10 @@ export function ParticipantList({
   participants,
   limit,
   isOrganizer = false,
-  currentParticipantName,
+  currentUserId,
   onRemove,
   onSwitchRole,
+  onViewDetails,
 }: ParticipantListProps) {
   const IconComponent = icon === 'player' ? User : icon === 'goalkeeper' ? Shield : Clock;
   
@@ -68,7 +70,8 @@ export function ParticipantList({
               isOrganizer={isOrganizer}
               onRemove={onRemove}
               onSwitchRole={onSwitchRole}
-              currentParticipantName={currentParticipantName}
+              onViewDetails={onViewDetails}
+              currentUserId={currentUserId}
             />
           ))
         )}
