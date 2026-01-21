@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import EventForm from "./pages/EventForm";
 import EventPage from "./pages/EventPage";
+import ParticipantAuth from "./pages/ParticipantAuth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/event/new" element={<EventForm />} />
           <Route path="/event/:id/edit" element={<EventForm />} />
           <Route path="/event/:id" element={<EventPage />} />
+          <Route path="/participant-auth" element={<ParticipantAuth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
