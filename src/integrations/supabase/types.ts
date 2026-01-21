@@ -91,6 +91,36 @@ export type Database = {
         }
         Relationships: []
       }
+      participant_profiles: {
+        Row: {
+          cellphone: string | null
+          cpf: string
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cellphone?: string | null
+          cpf: string
+          created_at?: string
+          full_name: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cellphone?: string | null
+          cpf?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       participants: {
         Row: {
           created_at: string
@@ -99,6 +129,7 @@ export type Database = {
           name: string
           role: Database["public"]["Enums"]["participant_role"]
           status: Database["public"]["Enums"]["participant_status"]
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -107,6 +138,7 @@ export type Database = {
           name: string
           role: Database["public"]["Enums"]["participant_role"]
           status?: Database["public"]["Enums"]["participant_status"]
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -115,6 +147,7 @@ export type Database = {
           name?: string
           role?: Database["public"]["Enums"]["participant_role"]
           status?: Database["public"]["Enums"]["participant_status"]
+          user_id?: string | null
         }
         Relationships: [
           {

@@ -1,1 +1,4 @@
 project_id = "eizbtwhhvuppzgkhvwlp"
+
+[functions.get-participant-details]
+verify_jwt = false

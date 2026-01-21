@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ParticipantRole } from '@/lib/types';
 import { User, Shield, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface JoinEventFormProps {
-  onJoin: (name: string, role: ParticipantRole) => Promise<boolean>;
+  onJoin: (role: ParticipantRole) => Promise<boolean>;
   canJoinAsPlayer: boolean;
   canJoinAsGoalkeeper: boolean;
   isOpen: boolean;
+  userName: string;
 }
 
 export function JoinEventForm({
@@ -17,24 +17,17 @@ export function JoinEventForm({
   canJoinAsPlayer,
   canJoinAsGoalkeeper,
   isOpen,
+  userName,
 }: JoinEventFormProps) {
-  const [name, setName] = useState('');
   const [selectedRole, setSelectedRole] = useState<ParticipantRole>('PLAYER');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
 
     setLoading(true);
-    const success = await onJoin(name.trim(), selectedRole);
+    await onJoin(selectedRole);
     setLoading(false);
-
-    if (success) {
-      // Store name in localStorage for future reference
-      localStorage.setItem('borajogar_name', name.trim());
-      setName('');
-    }
   };
 
   if (!isOpen) {
@@ -48,16 +41,10 @@ export function JoinEventForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="bg-gradient-card rounded-xl border border-border/50 p-4 shadow-card">
-        <h3 className="font-semibold text-lg mb-4">Entrar no Jogo</h3>
-
-        <Input
-          type="text"
-          placeholder="Seu nome"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="mb-4 h-12 text-base bg-secondary border-border/50"
-          maxLength={50}
-        />
+        <h3 className="font-semibold text-lg mb-2">Confirmar Presença</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Inscrevendo como: <span className="text-foreground font-medium">{userName}</span>
+        </p>
 
         <div className="grid grid-cols-2 gap-3 mb-4">
           <button
@@ -98,7 +85,7 @@ export function JoinEventForm({
         <Button
           type="submit"
           className="w-full h-12 text-base"
-          disabled={!name.trim() || loading}
+          disabled={loading}
         >
           {loading ? (
             <>

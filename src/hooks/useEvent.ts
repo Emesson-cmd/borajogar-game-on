@@ -96,13 +96,22 @@ export function useEvent(eventId: string | undefined) {
     return getConfirmedGoalkeepers().length < event.goalkeeper_limit;
   };
 
-  const addParticipant = async (name: string, role: ParticipantRole): Promise<boolean> => {
+  const addParticipant = async (name: string, role: ParticipantRole, userId?: string): Promise<boolean> => {
     if (!event || !eventId) return false;
 
     const trimmedName = name.trim();
     if (!trimmedName) {
       toast.error('Digite seu nome');
       return false;
+    }
+
+    // Check for duplicate user_id if provided
+    if (userId) {
+      const existingByUserId = participants.find(p => p.user_id === userId);
+      if (existingByUserId) {
+        toast.error('Você já está inscrito neste evento');
+        return false;
+      }
     }
 
     // Check for duplicate name
@@ -130,6 +139,7 @@ export function useEvent(eventId: string | undefined) {
           name: trimmedName,
           role,
           status,
+          user_id: userId || null,
         });
 
       if (error) {
