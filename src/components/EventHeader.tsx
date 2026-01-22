@@ -16,10 +16,9 @@ import { ptBR } from 'date-fns/locale';
 
 interface EventHeaderProps {
   event: Event;
-  isOrganizer?: boolean;
 }
 
-export function EventHeader({ event, isOrganizer = false }: EventHeaderProps) {
+export function EventHeader({ event }: EventHeaderProps) {
   const eventUrl = `${window.location.origin}/event/${event.id}`;
 
   const copyLink = () => {
@@ -49,14 +48,12 @@ ${eventUrl}`;
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <Logo size="sm" />
-        {isOrganizer && (
-          <Button variant="outline" size="sm" asChild>
-            <a href="/dashboard">
-              <Settings className="w-4 h-4 mr-2" />
-              Dashboard
-            </a>
-          </Button>
-        )}
+        <Button variant="outline" size="sm" asChild>
+          <a href="/dashboard">
+            <Settings className="w-4 h-4 mr-2" />
+            Dashboard
+          </a>
+        </Button>
       </div>
 
       <div className="bg-gradient-card rounded-2xl border border-border/50 p-6 shadow-card">

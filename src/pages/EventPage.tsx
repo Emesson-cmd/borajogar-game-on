@@ -88,7 +88,7 @@ const EventPage = () => {
   return (
     <div className="min-h-screen bg-gradient-hero pb-8">
       <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
-        <EventHeader event={event} isOrganizer={isOrganizer} />
+        <EventHeader event={event} />
 
         {/* Auth prompt for unauthenticated users */}
         {showAuthPrompt && (
