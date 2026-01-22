@@ -22,12 +22,9 @@ type ProfileDropdownProps = {
 
 export function ProfileDropdown({ user }: ProfileDropdownProps) {
   const { signOut } = useAuth();
-  const { profile } = useParticipantProfile()
+  const { profile } = useParticipantProfile();
   const [participatingEvents, setParticipatingEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(false);
 
-
-  console.log('profile', profile)
   useEffect(() => {
     if (window === undefined) return;
 
@@ -35,12 +32,14 @@ export function ProfileDropdown({ user }: ProfileDropdownProps) {
 
     const fetchParticipatingEvents = async () => {
       try {
-        setLoading(true);
         // Get all participants for this user
         const { data: participants, error: participantsError } = await supabase
           .from('participants')
           .select('event_id')
           .eq('user_id', user.id);
+
+        console.log('user.id', user.id);
+        console.log('participants', participants);
 
         if (participantsError) throw participantsError;
 
@@ -61,8 +60,6 @@ export function ProfileDropdown({ user }: ProfileDropdownProps) {
         setParticipatingEvents(events || []);
       } catch (error) {
         console.error('Error fetching participating events:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -73,6 +70,7 @@ export function ProfileDropdown({ user }: ProfileDropdownProps) {
     await signOut();
   };
 
+  console.log('participatingEvents', participatingEvents);
 
   return (
     <DropdownMenu>

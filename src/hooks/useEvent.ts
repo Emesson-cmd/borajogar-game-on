@@ -151,12 +151,22 @@ export function useEvent(eventId: string | undefined) {
     }
 
     try {
+      const { data: participantProfileData, error: participantProfileError } =
+        await supabase
+          .from('participant_profiles')
+          .select('cpf')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (participantProfileError) throw participantProfileError;
+
       const { error } = await supabase.from('participants').insert({
         event_id: eventId,
         name: trimmedName,
         role,
         status,
         user_id: userId || null,
+        cpf: participantProfileData?.cpf || null,
       });
 
       if (error) {
