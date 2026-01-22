@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Event, Participant, EventRule, ParticipantRole, ParticipantStatus } from '@/lib/types';
+import {
+  Event,
+  Participant,
+  EventRule,
+  ParticipantRole,
+  ParticipantStatus,
+} from '@/lib/types';
 import { toast } from 'sonner';
 
 export function useEvent(eventId: string | undefined) {
@@ -22,11 +28,12 @@ export function useEvent(eventId: string | undefined) {
       if (eventError) throw eventError;
       setEvent(eventData);
 
-      const { data: participantsData, error: participantsError } = await supabase
-        .from('participants')
-        .select('*')
-        .eq('event_id', eventId)
-        .order('created_at', { ascending: true });
+      const { data: participantsData, error: participantsError } =
+        await supabase
+          .from('participants')
+          .select('*')
+          .eq('event_id', eventId)
+          .order('created_at', { ascending: true });
 
       if (participantsError) throw participantsError;
       setParticipants(participantsData || []);
@@ -39,7 +46,6 @@ export function useEvent(eventId: string | undefined) {
 
       if (rulesError) throw rulesError;
       setRules(rulesData || []);
-
     } catch (error: any) {
       console.error('Error fetching event:', error);
       toast.error('Erro ao carregar evento');
@@ -68,7 +74,7 @@ export function useEvent(eventId: string | undefined) {
         },
         () => {
           fetchEvent();
-        }
+        },
       )
       .subscribe();
 
@@ -77,14 +83,16 @@ export function useEvent(eventId: string | undefined) {
     };
   }, [eventId, fetchEvent]);
 
-  const getConfirmedPlayers = () => 
-    participants.filter(p => p.role === 'PLAYER' && p.status === 'CONFIRMED');
+  const getConfirmedPlayers = () =>
+    participants.filter((p) => p.role === 'PLAYER' && p.status === 'CONFIRMED');
 
-  const getConfirmedGoalkeepers = () => 
-    participants.filter(p => p.role === 'GOALKEEPER' && p.status === 'CONFIRMED');
+  const getConfirmedGoalkeepers = () =>
+    participants.filter(
+      (p) => p.role === 'GOALKEEPER' && p.status === 'CONFIRMED',
+    );
 
-  const getWaitingList = () => 
-    participants.filter(p => p.status === 'WAITING');
+  const getWaitingList = () =>
+    participants.filter((p) => p.status === 'WAITING');
 
   const canJoinAsPlayer = () => {
     if (!event) return false;
@@ -96,7 +104,17 @@ export function useEvent(eventId: string | undefined) {
     return getConfirmedGoalkeepers().length < event.goalkeeper_limit;
   };
 
-  const addParticipant = async (name: string, role: ParticipantRole, userId?: string): Promise<boolean> => {
+  const addParticipant = async (
+    name: string,
+    role: ParticipantRole,
+    userId?: string,
+  ): Promise<boolean> => {
+    console.log('Hello world', {
+      name,
+      role,
+      userId,
+    });
+
     if (!event || !eventId) return false;
 
     const trimmedName = name.trim();
@@ -107,7 +125,7 @@ export function useEvent(eventId: string | undefined) {
 
     // Check for duplicate user_id if provided
     if (userId) {
-      const existingByUserId = participants.find(p => p.user_id === userId);
+      const existingByUserId = participants.find((p) => p.user_id === userId);
       if (existingByUserId) {
         toast.error('Você já está inscrito neste evento');
         return false;
@@ -116,9 +134,10 @@ export function useEvent(eventId: string | undefined) {
 
     // Check for duplicate name
     const existingParticipant = participants.find(
-      p => p.name.toLowerCase() === trimmedName.toLowerCase()
+      (p) => p.name.toLowerCase() === trimmedName.toLowerCase(),
     );
     if (existingParticipant) {
+      console.log('Participant already exists I:', existingParticipant);
       toast.error('Este nome já está na lista');
       return false;
     }
@@ -132,18 +151,17 @@ export function useEvent(eventId: string | undefined) {
     }
 
     try {
-      const { error } = await supabase
-        .from('participants')
-        .insert({
-          event_id: eventId,
-          name: trimmedName,
-          role,
-          status,
-          user_id: userId || null,
-        });
+      const { error } = await supabase.from('participants').insert({
+        event_id: eventId,
+        name: trimmedName,
+        role,
+        status,
+        user_id: userId || null,
+      });
 
       if (error) {
         if (error.code === '23505') {
+          console.log('Participant already exists II:', error);
           toast.error('Este nome já está na lista');
         } else {
           throw error;
@@ -166,8 +184,10 @@ export function useEvent(eventId: string | undefined) {
 
   const removeParticipant = async (participantId: string): Promise<boolean> => {
     try {
-      const removedParticipant = participants.find(p => p.id === participantId);
-      
+      const removedParticipant = participants.find(
+        (p) => p.id === participantId,
+      );
+
       const { error } = await supabase
         .from('participants')
         .delete()
@@ -178,8 +198,10 @@ export function useEvent(eventId: string | undefined) {
       // Auto-promote from waiting list
       if (removedParticipant?.status === 'CONFIRMED' && event) {
         const waitingList = getWaitingList();
-        const waitingWithSameRole = waitingList.find(p => p.role === removedParticipant.role);
-        
+        const waitingWithSameRole = waitingList.find(
+          (p) => p.role === removedParticipant.role,
+        );
+
         if (waitingWithSameRole) {
           await supabase
             .from('participants')
@@ -197,17 +219,26 @@ export function useEvent(eventId: string | undefined) {
     }
   };
 
-  const switchRole = async (participantId: string, newRole: ParticipantRole): Promise<boolean> => {
+  const switchRole = async (
+    participantId: string,
+    newRole: ParticipantRole,
+  ): Promise<boolean> => {
     if (!event) return false;
 
-    const participant = participants.find(p => p.id === participantId);
+    const participant = participants.find((p) => p.id === participantId);
     if (!participant) return false;
 
     // Check if there's room in the new role
     let newStatus: ParticipantStatus = 'CONFIRMED';
-    if (newRole === 'PLAYER' && getConfirmedPlayers().length >= event.player_limit) {
+    if (
+      newRole === 'PLAYER' &&
+      getConfirmedPlayers().length >= event.player_limit
+    ) {
       newStatus = 'WAITING';
-    } else if (newRole === 'GOALKEEPER' && getConfirmedGoalkeepers().length >= event.goalkeeper_limit) {
+    } else if (
+      newRole === 'GOALKEEPER' &&
+      getConfirmedGoalkeepers().length >= event.goalkeeper_limit
+    ) {
       newStatus = 'WAITING';
     }
 
@@ -221,7 +252,9 @@ export function useEvent(eventId: string | undefined) {
 
       // If original spot was confirmed, promote from waiting list
       if (participant.status === 'CONFIRMED') {
-        const waitingWithOldRole = getWaitingList().find(p => p.role === participant.role);
+        const waitingWithOldRole = getWaitingList().find(
+          (p) => p.role === participant.role,
+        );
         if (waitingWithOldRole) {
           await supabase
             .from('participants')

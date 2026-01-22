@@ -62,12 +62,15 @@ export function ParticipantDetailsModal({
           'get-participant-details',
           {
             body: { participantId },
+            headers: {
+              'Content-Type': 'application/json',
+            },
           }
         );
 
         if (fnError) {
           console.error('Error invoking function:', fnError);
-          setError('Erro ao carregar detalhes');
+          setError('Erro ao carregar detalhes do participante');
           return;
         }
 

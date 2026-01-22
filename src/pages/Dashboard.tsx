@@ -5,10 +5,21 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Event } from '@/lib/types';
-import { Plus, Calendar, Users, LogOut, Loader2, ExternalLink, Trash2, Copy, Pencil } from 'lucide-react';
+import {
+  Plus,
+  Calendar,
+  Users,
+  LogOut,
+  Loader2,
+  ExternalLink,
+  Trash2,
+  Copy,
+  Pencil,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ProfileDropdown } from '@/components/ProfileDropdown';
 
 const Dashboard = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -112,7 +123,7 @@ const Dashboard = () => {
       if (rulesError) throw rulesError;
 
       if (rules && rules.length > 0) {
-        const newRules = rules.map(rule => ({
+        const newRules = rules.map((rule) => ({
           event_id: newEvent.id,
           rule_text: rule.rule_text,
           order_index: rule.order_index,
@@ -146,10 +157,7 @@ const Dashboard = () => {
       <div className="container max-w-4xl mx-auto px-4 py-6">
         <header className="flex items-center justify-between mb-8">
           <Logo size="sm" />
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
+          <ProfileDropdown user={user} />
         </header>
 
         <div className="flex items-center justify-between mb-6">
@@ -193,7 +201,9 @@ const Dashboard = () => {
                 <div className="flex items-start justify-between gap-4 md:flex-row flex-col">
                   <div className="flex-1 min-w-0 max-w-full">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg truncate">{event.name}</h3>
+                      <h3 className="font-semibold text-lg truncate">
+                        {event.name}
+                      </h3>
                       {!event.is_open && (
                         <span className="shrink-0 px-2 py-0.5 rounded-full bg-destructive/20 text-destructive text-xs">
                           Fechado
@@ -203,7 +213,9 @@ const Dashboard = () => {
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        {format(parseISO(event.date), "dd 'de' MMM", { locale: ptBR })}
+                        {format(parseISO(event.date), "dd 'de' MMM", {
+                          locale: ptBR,
+                        })}
                       </span>
                       <span>{event.time}</span>
                       <span className="flex items-center gap-1">
@@ -215,14 +227,17 @@ const Dashboard = () => {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <Link to={`/event/${event.id}`}>
-                      <Button variant="outline" size="icon"
+                      <Button
+                        variant="outline"
+                        size="icon"
                         className="text-muted-foreground hover:text-primary"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </Button>
                     </Link>
                     <Link to={`/event/${event.id}/edit`}>
-                      <Button variant="outline"
+                      <Button
+                        variant="outline"
                         size="icon"
                         className="text-muted-foreground hover:text-primary"
                       >

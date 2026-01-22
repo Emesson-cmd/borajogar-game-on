@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useEvent } from '@/hooks/useEvent';
 import { useAuth } from '@/hooks/useAuth';
 import { useParticipantProfile } from '@/hooks/useParticipantProfile';
@@ -16,7 +16,11 @@ const EventPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { profile, loading: profileLoading, hasProfile } = useParticipantProfile();
+  const {
+    profile,
+    loading: profileLoading,
+    hasProfile,
+  } = useParticipantProfile();
   const {
     event,
     participants,
@@ -32,12 +36,16 @@ const EventPage = () => {
     switchRole,
   } = useEvent(id);
 
-  const [selectedParticipantId, setSelectedParticipantId] = useState<string | null>(null);
+  const [selectedParticipantId, setSelectedParticipantId] = useState<
+    string | null
+  >(null);
 
   const isOrganizer = user?.id === event?.organizer_id;
 
   // Check if current user is already in the list
-  const isAlreadyJoined = user ? participants.some(p => p.user_id === user.id) : false;
+  const isAlreadyJoined = user
+    ? participants.some((p) => p.user_id === user.id)
+    : false;
 
   const handleJoin = async (role: ParticipantRole) => {
     if (!user || !profile) return false;
@@ -66,6 +74,7 @@ const EventPage = () => {
           <p className="text-muted-foreground">
             Este link pode estar incorreto ou o evento foi removido.
           </p>
+          <Link to="/">Voltar para a página inicial</Link>
         </div>
       </div>
     );
@@ -73,7 +82,6 @@ const EventPage = () => {
 
   // Not authenticated - show login prompt
   const showAuthPrompt = !user && event.is_open;
-  
   // Authenticated but no profile - show profile creation prompt
   const showProfilePrompt = user && !hasProfile && event.is_open;
 
@@ -90,7 +98,9 @@ const EventPage = () => {
               Faça login ou cadastre-se para confirmar sua presença no jogo.
             </p>
             <Button
-              onClick={() => navigate(`/participant-auth?redirect=/event/${id}`)}
+              onClick={() =>
+                navigate(`/participant-auth?redirect=/event/${id}`)
+              }
               className="w-full h-12"
             >
               <LogIn className="w-5 h-5 mr-2" />
@@ -102,12 +112,17 @@ const EventPage = () => {
         {/* Profile prompt for authenticated users without profile */}
         {showProfilePrompt && (
           <div className="bg-gradient-card rounded-xl border border-border/50 p-6 shadow-card">
-            <h3 className="font-semibold text-lg mb-2">Complete seu cadastro</h3>
+            <h3 className="font-semibold text-lg mb-2">
+              Complete seu cadastro
+            </h3>
             <p className="text-muted-foreground mb-4">
-              Para participar, você precisa completar seu perfil com algumas informações.
+              Para participar, você precisa completar seu perfil com algumas
+              informações.
             </p>
             <Button
-              onClick={() => navigate(`/participant-auth?redirect=/event/${id}`)}
+              onClick={() =>
+                navigate(`/participant-auth?redirect=/event/${id}`)
+              }
               className="w-full h-12"
             >
               Completar Cadastro
