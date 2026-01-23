@@ -8,11 +8,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { Loader2, Mail, Lock, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-
-const authSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
-});
+import { authSchema } from '@/shared/schemas/authSchema';
+import { BackButton } from '@/components/BackButton';
+import { getErrorMessage } from '@/shared/errors/sign-in';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -61,13 +59,7 @@ const Auth = () => {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast.error('Email ou senha incorretos');
-          } else if (error.message.includes('Email not confirmed')) {
-            toast.error('Por favor, confirme seu email antes de entrar');
-          } else {
-            toast.error(error.message);
-          }
+          toast.error(getErrorMessage(error.message));
         } else {
           toast.success('Login realizado com sucesso!');
           navigate('/dashboard');
@@ -114,10 +106,7 @@ const Auth = () => {
     <div className="min-h-screen bg-gradient-hero">
       <div className="container max-w-md mx-auto px-4 py-8">
         <div className="mb-8">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
-          </Button>
+          <BackButton />
         </div>
 
         <div className="text-center mb-8 animate-fade-in">

@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/Logo';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { validateCPF } from '@/shared/utils/validate-cpf';
+import { getErrorMessage } from '@/shared/errors/sign-in';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -16,7 +18,8 @@ const formatCPF = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
   if (digits.length <= 3) return digits;
   if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
-  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  if (digits.length <= 9)
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
   return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
 };
 
@@ -27,53 +30,31 @@ const formatPhone = (value: string) => {
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 };
 
-const validateCPF = (cpf: string) => {
-  const digits = cpf.replace(/\D/g, '');
-  if (digits.length !== 11) return false;
-  
-  // Check for known invalid CPFs
-  if (/^(\d)\1{10}$/.test(digits)) return false;
-  
-  // Validate check digits
-  let sum = 0;
-  for (let i = 0; i < 9; i++) {
-    sum += parseInt(digits[i]) * (10 - i);
-  }
-  let remainder = (sum * 10) % 11;
-  if (remainder === 10 || remainder === 11) remainder = 0;
-  if (remainder !== parseInt(digits[9])) return false;
-  
-  sum = 0;
-  for (let i = 0; i < 10; i++) {
-    sum += parseInt(digits[i]) * (11 - i);
-  }
-  remainder = (sum * 10) % 11;
-  if (remainder === 10 || remainder === 11) remainder = 0;
-  if (remainder !== parseInt(digits[10])) return false;
-  
-  return true;
-};
-
 const ParticipantAuth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/';
-  
+
   const { user, loading: authLoading, signIn, signUp } = useAuth();
-  const { profile, loading: profileLoading, createProfile, hasProfile } = useParticipantProfile();
-  
+  const {
+    profile,
+    loading: profileLoading,
+    createProfile,
+    hasProfile,
+  } = useParticipantProfile();
+
   const [mode, setMode] = useState<AuthMode>('signin');
   const [loading, setLoading] = useState(false);
-  
+
   // Auth form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // Profile form state
   const [fullName, setFullName] = useState('');
   const [cpf, setCpf] = useState('');
   const [cellphone, setCellphone] = useState('');
-  
+
   const [cpfError, setCpfError] = useState('');
 
   // Redirect if user is authenticated and has profile
@@ -86,7 +67,7 @@ const ParticipantAuth = () => {
   const handleCpfChange = (value: string) => {
     const formatted = formatCPF(value);
     setCpf(formatted);
-    
+
     if (formatted.length === 14) {
       if (!validateCPF(formatted)) {
         setCpfError('CPF inválido');
@@ -110,7 +91,7 @@ const ParticipantAuth = () => {
     setLoading(false);
 
     if (error) {
-      toast.error(error.message);
+      toast.error(getErrorMessage(error.message));
     } else {
       toast.success('Login realizado com sucesso!');
     }
@@ -118,7 +99,7 @@ const ParticipantAuth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password || !fullName || !cpf) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
@@ -135,10 +116,10 @@ const ParticipantAuth = () => {
     }
 
     setLoading(true);
-    
+
     // First sign up
     const { error: signUpError } = await signUp(email, password);
-    
+
     if (signUpError) {
       setLoading(false);
       toast.error(signUpError.message);
@@ -153,7 +134,7 @@ const ParticipantAuth = () => {
 
   const handleCreateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!fullName || !cpf) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
@@ -165,7 +146,11 @@ const ParticipantAuth = () => {
     }
 
     setLoading(true);
-    const success = await createProfile(fullName, cpf.replace(/\D/g, ''), cellphone.replace(/\D/g, ''));
+    const success = await createProfile(
+      fullName,
+      cpf.replace(/\D/g, ''),
+      cellphone.replace(/\D/g, ''),
+    );
     setLoading(false);
 
     if (success) {
@@ -194,7 +179,10 @@ const ParticipantAuth = () => {
             </p>
           </div>
 
-          <form onSubmit={handleCreateProfile} className="space-y-4 bg-gradient-card rounded-xl border border-border/50 p-6">
+          <form
+            onSubmit={handleCreateProfile}
+            className="space-y-4 bg-gradient-card rounded-xl border border-border/50 p-6"
+          >
             <div className="space-y-2">
               <Label htmlFor="fullName">Nome Completo *</Label>
               <Input
@@ -219,7 +207,9 @@ const ParticipantAuth = () => {
                 className={`h-12 bg-secondary border-border/50 ${cpfError ? 'border-destructive' : ''}`}
                 required
               />
-              {cpfError && <p className="text-sm text-destructive">{cpfError}</p>}
+              {cpfError && (
+                <p className="text-sm text-destructive">{cpfError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -234,7 +224,11 @@ const ParticipantAuth = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full h-12" disabled={loading || !!cpfError}>
+            <Button
+              type="submit"
+              className="w-full h-12"
+              disabled={loading || !!cpfError}
+            >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -259,15 +253,17 @@ const ParticipantAuth = () => {
             {mode === 'signin' ? 'Entrar' : 'Criar Conta'}
           </h1>
           <p className="text-muted-foreground mt-2">
-            {mode === 'signin' 
-              ? 'Entre para confirmar sua presença' 
-              : 'Cadastre-se para participar dos jogos'
-            }
+            {mode === 'signin'
+              ? 'Entre para confirmar sua presença'
+              : 'Cadastre-se para participar dos jogos'}
           </p>
         </div>
 
         {mode === 'signin' ? (
-          <form onSubmit={handleSignIn} className="space-y-4 bg-gradient-card rounded-xl border border-border/50 p-6">
+          <form
+            onSubmit={handleSignIn}
+            className="space-y-4 bg-gradient-card rounded-xl border border-border/50 p-6"
+          >
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
               <Input
@@ -317,7 +313,10 @@ const ParticipantAuth = () => {
             </p>
           </form>
         ) : (
-          <form onSubmit={handleSignUp} className="space-y-4 bg-gradient-card rounded-xl border border-border/50 p-6">
+          <form
+            onSubmit={handleSignUp}
+            className="space-y-4 bg-gradient-card rounded-xl border border-border/50 p-6"
+          >
             <div className="space-y-2">
               <Label htmlFor="fullName">Nome Completo *</Label>
               <Input
@@ -342,7 +341,9 @@ const ParticipantAuth = () => {
                 className={`h-12 bg-secondary border-border/50 ${cpfError ? 'border-destructive' : ''}`}
                 required
               />
-              {cpfError && <p className="text-sm text-destructive">{cpfError}</p>}
+              {cpfError && (
+                <p className="text-sm text-destructive">{cpfError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -384,7 +385,11 @@ const ParticipantAuth = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full h-12" disabled={loading || !!cpfError}>
+            <Button
+              type="submit"
+              className="w-full h-12"
+              disabled={loading || !!cpfError}
+            >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
