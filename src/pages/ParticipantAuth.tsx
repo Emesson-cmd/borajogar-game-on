@@ -100,13 +100,8 @@ const ParticipantAuth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password || !fullName || !cpf) {
+    if (!email || !password) {
       toast.error('Preencha todos os campos obrigatórios');
-      return;
-    }
-
-    if (!validateCPF(cpf)) {
-      toast.error('CPF inválido');
       return;
     }
 
@@ -317,47 +312,6 @@ const ParticipantAuth = () => {
             onSubmit={handleSignUp}
             className="space-y-4 bg-gradient-card rounded-xl border border-border/50 p-6"
           >
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Nome Completo *</Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="Seu nome completo"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="h-12 bg-secondary border-border/50"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cpf">CPF *</Label>
-              <Input
-                id="cpf"
-                type="text"
-                placeholder="000.000.000-00"
-                value={cpf}
-                onChange={(e) => handleCpfChange(e.target.value)}
-                className={`h-12 bg-secondary border-border/50 ${cpfError ? 'border-destructive' : ''}`}
-                required
-              />
-              {cpfError && (
-                <p className="text-sm text-destructive">{cpfError}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cellphone">Celular (opcional)</Label>
-              <Input
-                id="cellphone"
-                type="text"
-                placeholder="(00) 00000-0000"
-                value={cellphone}
-                onChange={(e) => setCellphone(formatPhone(e.target.value))}
-                className="h-12 bg-secondary border-border/50"
-              />
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="email">E-mail *</Label>
               <Input
