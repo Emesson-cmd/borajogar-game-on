@@ -1,5 +1,7 @@
 # 🎮 Bora Jogar - Event Management Platform
 
+<img width="1896" height="976" alt="og-borajogar" src="https://github.com/user-attachments/assets/0235e632-7275-4e18-8e21-f9812a670d85" />
+
 > A modern, full-featured event management application designed for organizing and managing football/soccer games with participant registration, role management, and waiting list functionality.
 
 **Live Demo**: [borajogar-game-on.vercel.app](https://borajogar-game-on.vercel.app/)
