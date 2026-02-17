@@ -108,13 +108,8 @@ export function useEvent(eventId: string | undefined) {
     name: string,
     role: ParticipantRole,
     userId?: string,
+    allowDuplicateName?: boolean,
   ): Promise<boolean> => {
-    console.log('Hello world', {
-      name,
-      role,
-      userId,
-    });
-
     if (!event || !eventId) return false;
 
     const trimmedName = name.trim();
@@ -132,14 +127,16 @@ export function useEvent(eventId: string | undefined) {
       }
     }
 
-    // Check for duplicate name
-    const existingParticipant = participants.find(
-      (p) => p.name.toLowerCase() === trimmedName.toLowerCase(),
-    );
-    if (existingParticipant) {
-      console.log('Participant already exists I:', existingParticipant);
-      toast.error('Este nome já está na lista');
-      return false;
+    if (!allowDuplicateName) {
+      const existingParticipant = participants.find(
+        (p) => p.name.toLowerCase() === trimmedName.toLowerCase(),
+      );
+
+      if (existingParticipant) {
+        console.log('Participant already exists I:', existingParticipant);
+        toast.error('Este nome já está na lista');
+        return false;
+      }
     }
 
     // Determine status based on availability
@@ -151,22 +148,13 @@ export function useEvent(eventId: string | undefined) {
     }
 
     try {
-      const { data: participantProfileData, error: participantProfileError } =
-        await supabase
-          .from('participant_profiles')
-          .select('cpf')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-      if (participantProfileError) throw participantProfileError;
-
       const { error } = await supabase.from('participants').insert({
         event_id: eventId,
         name: trimmedName,
         role,
         status,
         user_id: userId || null,
-        cpf: participantProfileData?.cpf || null,
+        cpf: null,
       });
 
       if (error) {

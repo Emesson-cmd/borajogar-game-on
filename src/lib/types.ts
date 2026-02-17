@@ -22,6 +22,7 @@ export interface Event {
   player_limit: number;
   goalkeeper_limit: number;
   is_open: boolean;
+  requires_registration: boolean;
   created_at: string;
   updated_at: string;
 }

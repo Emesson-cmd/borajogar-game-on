@@ -43,7 +43,8 @@ export function JoinEventForm({
       <div className="bg-gradient-card rounded-xl border border-border/50 p-4 shadow-card">
         <h3 className="font-semibold text-lg mb-2">Confirmar Presença</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Inscrevendo como: <span className="text-foreground font-medium">{userName}</span>
+          Inscrevendo como:{' '}
+          <span className="text-foreground font-medium">{userName}</span>
         </p>
 
         <div className="grid grid-cols-2 gap-3 mb-4">
@@ -54,7 +55,7 @@ export function JoinEventForm({
               'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200',
               selectedRole === 'PLAYER'
                 ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border/50 bg-secondary/50 text-muted-foreground hover:border-primary/50'
+                : 'border-border/50 bg-secondary/50 text-muted-foreground hover:border-primary/50',
             )}
           >
             <User className="w-6 h-6" />
@@ -71,7 +72,7 @@ export function JoinEventForm({
               'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200',
               selectedRole === 'GOALKEEPER'
                 ? 'border-goalkeeper bg-goalkeeper/10 text-goalkeeper'
-                : 'border-border/50 bg-secondary/50 text-muted-foreground hover:border-goalkeeper/50'
+                : 'border-border/50 bg-secondary/50 text-muted-foreground hover:border-goalkeeper/50',
             )}
           >
             <Shield className="w-6 h-6" />

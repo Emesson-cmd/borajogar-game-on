@@ -29,6 +29,7 @@ const EventForm = () => {
   const [playerLimit, setPlayerLimit] = useState(20);
   const [goalkeeperLimit, setGoalkeeperLimit] = useState(4);
   const [isOpen, setIsOpen] = useState(true);
+  const [requiresRegistration, setRequiresRegistration] = useState(true);
   const [rules, setRules] = useState<string[]>([]);
   const [newRule, setNewRule] = useState('');
 
@@ -69,6 +70,7 @@ const EventForm = () => {
       setPlayerLimit(eventData.player_limit);
       setGoalkeeperLimit(eventData.goalkeeper_limit);
       setIsOpen(eventData.is_open);
+      setRequiresRegistration(eventData.requires_registration);
 
       const { data: rulesData, error: rulesError } = await supabase
         .from('event_rules')
@@ -123,6 +125,7 @@ const EventForm = () => {
             player_limit: playerLimit,
             goalkeeper_limit: goalkeeperLimit,
             is_open: isOpen,
+            requires_registration: requiresRegistration,
           })
           .eq('id', id);
 
@@ -142,6 +145,7 @@ const EventForm = () => {
             google_maps_url: googleMapsUrl.trim() || null,
             player_limit: playerLimit,
             goalkeeper_limit: goalkeeperLimit,
+            requires_registration: requiresRegistration,
             is_open: isOpen,
           })
           .select()
@@ -305,6 +309,27 @@ const EventForm = () => {
                 id="isOpen"
                 checked={isOpen}
                 onCheckedChange={setIsOpen}
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-2 border-t border-border/30 pt-4">
+              <div>
+                <Label htmlFor="requiresRegistration">Exigir Cadastro</Label>
+                <p className="text-sm text-muted-foreground">
+                  Se ativado, jogadores devem fazer login/cadastro. Se
+                  desativado, podem se inscrever apenas com um nome.
+                </p>
+              </div>
+              <Switch
+                id="requiresRegistration"
+                checked={requiresRegistration}
+                onCheckedChange={(e) => {
+                  if (isEditing) {
+                    return toast.warning('Não é possível alterar essa opção');
+                  }
+
+                  setRequiresRegistration(e);
+                }}
               />
             </div>
           </div>

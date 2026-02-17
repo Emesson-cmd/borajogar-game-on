@@ -49,7 +49,11 @@ export function useParticipantProfile() {
     fetchProfile();
   }, [fetchProfile]);
 
-  const createProfile = async (fullName: string, cpf: string, cellphone?: string) => {
+  const createProfile = async (
+    fullName: string,
+    cpf: string,
+    cellphone?: string,
+  ) => {
     if (!user) {
       toast.error('Você precisa estar logado');
       return false;
@@ -87,7 +91,11 @@ export function useParticipantProfile() {
     }
   };
 
-  const updateProfile = async (fullName: string, cpf: string, cellphone?: string) => {
+  const updateProfile = async (
+    fullName: string,
+    cpf: string,
+    cellphone?: string,
+  ) => {
     if (!user || !profile) {
       toast.error('Perfil não encontrado');
       return false;

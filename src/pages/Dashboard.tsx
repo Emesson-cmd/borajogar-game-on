@@ -39,7 +39,8 @@ const Dashboard = () => {
     if (user) {
       fetchEvents();
     }
-  }, [user, fetchEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   if (authLoading || !user) {
     return (

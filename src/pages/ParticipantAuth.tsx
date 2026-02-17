@@ -130,20 +130,15 @@ const ParticipantAuth = () => {
   const handleCreateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName || !cpf) {
+    if (!fullName) {
       toast.error('Preencha todos os campos obrigatórios');
-      return;
-    }
-
-    if (!validateCPF(cpf)) {
-      toast.error('CPF inválido');
       return;
     }
 
     setLoading(true);
     const success = await createProfile(
       fullName,
-      cpf.replace(/\D/g, ''),
+      null,
       cellphone.replace(/\D/g, ''),
     );
     setLoading(false);
@@ -189,22 +184,6 @@ const ParticipantAuth = () => {
                 className="h-12 bg-secondary border-border/50"
                 required
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cpf">CPF *</Label>
-              <Input
-                id="cpf"
-                type="text"
-                placeholder="000.000.000-00"
-                value={cpf}
-                onChange={(e) => handleCpfChange(e.target.value)}
-                className={`h-12 bg-secondary border-border/50 ${cpfError ? 'border-destructive' : ''}`}
-                required
-              />
-              {cpfError && (
-                <p className="text-sm text-destructive">{cpfError}</p>
-              )}
             </div>
 
             <div className="space-y-2">

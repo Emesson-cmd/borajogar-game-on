@@ -23,6 +23,7 @@ export function ParticipantCard({
   currentUserId,
 }: ParticipantCardProps) {
   const isCurrentUser = currentUserId && participant.user_id === currentUserId;
+  // Can modify if: organizer (always), or current user (only if they have user_id)
   const canModify = isOrganizer || isCurrentUser;
 
   const newRole: ParticipantRole = participant.role === 'PLAYER' ? 'GOALKEEPER' : 'PLAYER';
@@ -72,7 +73,7 @@ export function ParticipantCard({
       </div>
 
       <div className="flex items-center gap-1 shrink-0">
-        {isOrganizer && onViewDetails && (
+        {isOrganizer && onViewDetails && participant.user_id && (
           <Button
             variant="ghost"
             size="icon"

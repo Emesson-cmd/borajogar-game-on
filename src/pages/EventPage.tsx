@@ -5,6 +5,7 @@ import { useParticipantProfile } from '@/hooks/useParticipantProfile';
 import { EventHeader } from '@/components/EventHeader';
 import { ParticipantList } from '@/components/ParticipantList';
 import { JoinEventForm } from '@/components/JoinEventForm';
+import { AnonymousJoinForm } from '@/components/AnonymousJoinForm';
 import { EventRules } from '@/components/EventRules';
 import { ParticipantDetailsModal } from '@/components/ParticipantDetailsModal';
 import { Button } from '@/components/ui/button';
@@ -49,7 +50,12 @@ const EventPage = () => {
 
   const handleJoin = async (role: ParticipantRole) => {
     if (!user || !profile) return false;
-    return addParticipant(profile.full_name, role, user.id);
+    return addParticipant(profile.full_name, role, user.id, false);
+  };
+
+  const handleAnonymousJoin = async (name: string, role: ParticipantRole) => {
+    // For anonymous join, allowDuplicateName is true (allows duplicate names)
+    return addParticipant(name, role, undefined, false);
   };
 
   const handleViewDetails = (participantId: string) => {
@@ -81,9 +87,17 @@ const EventPage = () => {
   }
 
   // Not authenticated - show login prompt
-  const showAuthPrompt = !user && event.is_open;
+  const showAuthPrompt = !user && event.is_open && event.requires_registration;
   // Authenticated but no profile - show profile creation prompt
-  const showProfilePrompt = user && !hasProfile && event.is_open;
+  const showProfilePrompt =
+    user && !hasProfile && event.is_open && event.requires_registration;
+  // Show anonymous join form if registration is not required
+  const showAnonymousJoinForm =
+    !user && event.is_open && !event.requires_registration;
+  // Join Form - only show if authenticated, has profile, and not already joined
+  const showJoinForm = user && hasProfile && event.is_open && !isAlreadyJoined;
+  // Already joined message
+  const showAlreadyJoinedMessage = user && hasProfile && isAlreadyJoined;
 
   return (
     <div className="min-h-screen bg-gradient-hero pb-8">
@@ -130,8 +144,18 @@ const EventPage = () => {
           </div>
         )}
 
+        {/* Anonymous Join Form - only show if registration not required and not authenticated */}
+        {showAnonymousJoinForm && (
+          <AnonymousJoinForm
+            onJoin={handleAnonymousJoin}
+            canJoinAsPlayer={canJoinAsPlayer()}
+            canJoinAsGoalkeeper={canJoinAsGoalkeeper()}
+            isOpen={event.is_open}
+          />
+        )}
+
         {/* Join Form - only show if authenticated, has profile, and not already joined */}
-        {user && hasProfile && !isAlreadyJoined && event.is_open && (
+        {showJoinForm && (
           <JoinEventForm
             onJoin={handleJoin}
             canJoinAsPlayer={canJoinAsPlayer()}
@@ -142,7 +166,7 @@ const EventPage = () => {
         )}
 
         {/* Already joined message */}
-        {user && hasProfile && isAlreadyJoined && (
+        {showAlreadyJoinedMessage && (
           <div className="bg-success/10 border border-success/30 rounded-xl p-4 text-center">
             <p className="text-success font-medium">
               ✓ Você está inscrito neste evento
