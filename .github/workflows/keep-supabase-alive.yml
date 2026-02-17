@@ -3,6 +3,7 @@ name: Keep Supabase Alive
 on:
   schedule:
     - cron: '0 */6 * * *'
+  workflow_dispatch: # necessário para rodar manualmente
 
 jobs:
   ping:
