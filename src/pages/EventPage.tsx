@@ -77,7 +77,12 @@ const EventPage = () => {
     isOrganizerSelf = false,
   ) => {
     if (!user) return false;
-    return addParticipant(name, role, isOrganizerSelf ? user.id : undefined, false);
+    return addParticipant(
+      name,
+      role,
+      isOrganizerSelf ? user.id : undefined,
+      false,
+    );
   };
 
   const handleAnonymousJoin = async (name: string, role: ParticipantRole) => {
@@ -124,8 +129,7 @@ const EventPage = () => {
   // Join Form - only show if authenticated, has profile, and not already joined
   const showJoinForm =
     user && hasProfile && event.is_open && !isAlreadyJoined && !isOrganizer;
-  const showOrganizerJoinForm =
-    isOrganizer && event.is_open;
+  const showOrganizerJoinForm = isOrganizer && event.is_open;
   // Already joined message
   const showAlreadyJoinedMessage = user && hasProfile && isAlreadyJoined;
   const shareTeamsOnWhatsApp = () => {
@@ -305,7 +309,9 @@ const EventPage = () => {
                 max={20}
                 value={teamCount}
                 onChange={(event) => {
-                  setTeamCount(Math.max(2, Math.min(20, Number(event.target.value) || 2)));
+                  setTeamCount(
+                    Math.max(2, Math.min(20, Number(event.target.value) || 2)),
+                  );
                   setTeams(null);
                 }}
               />
@@ -319,7 +325,9 @@ const EventPage = () => {
                 max={50}
                 value={playersPerTeam}
                 onChange={(event) => {
-                  setPlayersPerTeam(Math.max(0, Math.min(50, Number(event.target.value) || 0)));
+                  setPlayersPerTeam(
+                    Math.max(0, Math.min(50, Number(event.target.value) || 0)),
+                  );
                   setTeams(null);
                 }}
               />
@@ -333,7 +341,9 @@ const EventPage = () => {
                 max={10}
                 value={goalkeepersPerTeam}
                 onChange={(event) => {
-                  setGoalkeepersPerTeam(Math.max(0, Math.min(10, Number(event.target.value) || 0)));
+                  setGoalkeepersPerTeam(
+                    Math.max(0, Math.min(10, Number(event.target.value) || 0)),
+                  );
                   setTeams(null);
                 }}
               />
@@ -351,7 +361,9 @@ const EventPage = () => {
             }
             disabled={
               playersPerTeam + goalkeepersPerTeam === 0 ||
-              !participants.some((participant) => participant.status === 'CONFIRMED')
+              !participants.some(
+                (participant) => participant.status === 'CONFIRMED',
+              )
             }
           >
             <Shuffle className="w-4 h-4 mr-2" />
@@ -364,33 +376,43 @@ const EventPage = () => {
                 Compartilhar no WhatsApp
               </Button>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {teams.teams.map((team, teamIndex) => (
-                <section key={teamIndex} className="min-w-0">
-                  <h3 className="mb-2 font-semibold">Time {teamIndex + 1}</h3>
-                  {team.length ? (
-                    <ul className="space-y-2 text-sm">
-                      {team.map((participant) => (
-                        <li key={participant.id} className="break-words">
-                          {participant.name}
-                          <span className="block text-xs text-muted-foreground">
-                            {participant.role === 'GOALKEEPER' ? 'Goleiro' : 'Jogador'}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Sem participantes</p>
-                  )}
-                </section>
-              ))}
+                {teams.teams.map((team, teamIndex) => (
+                  <section key={teamIndex} className="min-w-0">
+                    <h3 className="mb-2 font-semibold">Time {teamIndex + 1}</h3>
+                    {team.length ? (
+                      <ul className="space-y-2 text-sm">
+                        {team.map((participant) => (
+                          <li key={participant.id} className="break-words">
+                            {participant.name}
+                            <span className="block text-xs text-muted-foreground">
+                              {participant.role === 'GOALKEEPER'
+                                ? 'Goleiro'
+                                : 'Jogador'}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Sem participantes
+                      </p>
+                    )}
+                  </section>
+                ))}
               </div>
               {teams.unassigned.length > 0 && (
                 <section className="border-t border-border pt-3">
-                  <h3 className="mb-2 font-semibold">Sem time por limite de vagas</h3>
+                  <h3 className="mb-2 font-semibold">
+                    Sem time por limite de vagas
+                  </h3>
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     {teams.unassigned.map((participant) => (
                       <li key={participant.id}>
-                        {participant.name} ({participant.role === 'GOALKEEPER' ? 'Goleiro' : 'Jogador'})
+                        {participant.name} (
+                        {participant.role === 'GOALKEEPER'
+                          ? 'Goleiro'
+                          : 'Jogador'}
+                        )
                       </li>
                     ))}
                   </ul>
