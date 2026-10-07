@@ -1,6 +1,7 @@
-import { Event } from '@/lib/types';
+import { Event, Participant } from '@/lib/types';
 import { Logo } from './Logo';
 import { Button } from '@/components/ui/button';
+import { createWhatsAppMessage } from '@/lib/event-utils';
 import {
   Calendar,
   Clock,
@@ -16,9 +17,10 @@ import { ptBR } from 'date-fns/locale';
 
 interface EventHeaderProps {
   event: Event;
+  participants: Participant[];
 }
 
-export function EventHeader({ event }: EventHeaderProps) {
+export function EventHeader({ event, participants }: EventHeaderProps) {
   const eventUrl = `${window.location.origin}/event/${event.id}`;
 
   const copyLink = () => {
@@ -27,14 +29,7 @@ export function EventHeader({ event }: EventHeaderProps) {
   };
 
   const shareWhatsApp = () => {
-    const message = `⚽ ${event.name}
-📅 ${format(parseISO(event.date), "dd 'de' MMMM", { locale: ptBR })}
-⏰ ${event.time}
-📍 ${event.location}
-
-👉 Confirme sua presença:
-${eventUrl}`;
-
+    const message = createWhatsAppMessage(event, participants, eventUrl);
     const text = encodeURIComponent(message);
 
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');

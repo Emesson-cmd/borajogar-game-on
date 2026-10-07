@@ -154,7 +154,6 @@ export function useEvent(eventId: string | undefined) {
         role,
         status,
         user_id: userId || null,
-        cpf: null,
       });
 
       if (error) {
