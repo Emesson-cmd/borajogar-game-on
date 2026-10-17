@@ -18,6 +18,7 @@ const event: Event = {
   goalkeeper_limit: 2,
   is_open: true,
   requires_registration: false,
+  payment_tracking_enabled: true,
   created_at: '',
   updated_at: '',
 };
@@ -30,6 +31,7 @@ const participants: Participant[] = [
     name: 'Ana',
     role: 'PLAYER',
     status: 'CONFIRMED',
+    paid: true,
     created_at: '',
   },
   {
@@ -39,6 +41,7 @@ const participants: Participant[] = [
     name: 'Bia',
     role: 'PLAYER',
     status: 'CONFIRMED',
+    paid: false,
     created_at: '',
   },
   {
@@ -48,6 +51,7 @@ const participants: Participant[] = [
     name: 'Caio',
     role: 'GOALKEEPER',
     status: 'CONFIRMED',
+    paid: false,
     created_at: '',
   },
   {
@@ -57,6 +61,7 @@ const participants: Participant[] = [
     name: 'Davi',
     role: 'PLAYER',
     status: 'WAITING',
+    paid: false,
     created_at: '',
   },
 ];
@@ -98,6 +103,22 @@ describe('event utilities', () => {
 
     expect(result.teams.flat()).toHaveLength(2);
     expect(result.unassigned.map(({ id }) => id)).toEqual(['3']);
+  });
+
+  it('draws only confirmed participants who have paid when requested', () => {
+    const result = createTeams(
+      participants,
+      {
+        teamCount: 2,
+        playersPerTeam: 2,
+        goalkeepersPerTeam: 1,
+        paidOnly: true,
+      },
+      () => 0,
+    );
+
+    expect(result.teams.flat().map(({ id }) => id)).toEqual(['1']);
+    expect(result.unassigned).toHaveLength(0);
   });
 
   it('formats the drawn teams and unassigned players for WhatsApp', () => {

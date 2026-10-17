@@ -13,6 +13,8 @@ interface ParticipantListProps {
   onRemove: (id: string) => void;
   onSwitchRole: (id: string, newRole: ParticipantRole) => void;
   onViewDetails?: (id: string) => void;
+  trackPayments?: boolean;
+  onTogglePayment?: (id: string, paid: boolean) => void;
 }
 
 export function ParticipantList({
@@ -25,8 +27,13 @@ export function ParticipantList({
   onRemove,
   onSwitchRole,
   onViewDetails,
+  trackPayments = false,
+  onTogglePayment,
 }: ParticipantListProps) {
   const IconComponent = icon === 'player' ? User : icon === 'goalkeeper' ? Shield : Clock;
+  const displayedParticipants = trackPayments
+    ? [...participants].sort((first, second) => Number(second.paid) - Number(first.paid))
+    : participants;
   
   const iconColors = {
     player: 'text-primary bg-primary/10',
@@ -62,7 +69,7 @@ export function ParticipantList({
             Nenhum participante ainda
           </p>
         ) : (
-          participants.map((participant, index) => (
+          displayedParticipants.map((participant, index) => (
             <ParticipantCard
               key={participant.id}
               participant={participant}
@@ -71,6 +78,8 @@ export function ParticipantList({
               onRemove={onRemove}
               onSwitchRole={onSwitchRole}
               onViewDetails={onViewDetails}
+              trackPayments={trackPayments}
+              onTogglePayment={onTogglePayment}
               currentUserId={currentUserId}
             />
           ))

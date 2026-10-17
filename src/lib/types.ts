@@ -23,6 +23,7 @@ export interface Event {
   goalkeeper_limit: number;
   is_open: boolean;
   requires_registration: boolean;
+  payment_tracking_enabled: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -34,6 +35,7 @@ export interface Participant {
   name: string;
   role: ParticipantRole;
   status: ParticipantStatus;
+  paid: boolean;
   created_at: string;
 }
 
