@@ -19,6 +19,7 @@ import {
 } from '@/lib/event-utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -48,6 +49,7 @@ const EventPage = () => {
     addParticipant,
     removeParticipant,
     switchRole,
+    togglePayment,
   } = useEvent(id);
 
   const [selectedParticipantId, setSelectedParticipantId] = useState<
@@ -58,6 +60,7 @@ const EventPage = () => {
   const [teamCount, setTeamCount] = useState(2);
   const [playersPerTeam, setPlayersPerTeam] = useState(5);
   const [goalkeepersPerTeam, setGoalkeepersPerTeam] = useState(1);
+  const [paidOnly, setPaidOnly] = useState(false);
 
   const isOrganizer = user?.id === event?.organizer_id;
 
@@ -255,6 +258,8 @@ const EventPage = () => {
           onRemove={removeParticipant}
           onSwitchRole={switchRole}
           onViewDetails={isOrganizer ? handleViewDetails : undefined}
+          trackPayments={event.payment_tracking_enabled}
+          onTogglePayment={togglePayment}
         />
 
         {/* Players List */}
@@ -268,6 +273,8 @@ const EventPage = () => {
           onRemove={removeParticipant}
           onSwitchRole={switchRole}
           onViewDetails={isOrganizer ? handleViewDetails : undefined}
+          trackPayments={event.payment_tracking_enabled}
+          onTogglePayment={togglePayment}
         />
 
         {/* Waiting List */}
@@ -281,6 +288,8 @@ const EventPage = () => {
             onRemove={removeParticipant}
             onSwitchRole={switchRole}
             onViewDetails={isOrganizer ? handleViewDetails : undefined}
+            trackPayments={event.payment_tracking_enabled}
+            onTogglePayment={togglePayment}
           />
         )}
       </div>
@@ -349,6 +358,24 @@ const EventPage = () => {
               />
             </div>
           </div>
+          {event.payment_tracking_enabled && (
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-border/50 p-3">
+              <div>
+                <Label htmlFor="paidOnly">Sortear apenas quem pagou</Label>
+                <p className="text-sm text-muted-foreground">
+                  Participantes com pagamento pendente ficam fora do sorteio.
+                </p>
+              </div>
+              <Switch
+                id="paidOnly"
+                checked={paidOnly}
+                onCheckedChange={(checked) => {
+                  setPaidOnly(checked);
+                  setTeams(null);
+                }}
+              />
+            </div>
+          )}
           <Button
             onClick={() =>
               setTeams(
@@ -356,13 +383,18 @@ const EventPage = () => {
                   teamCount,
                   playersPerTeam,
                   goalkeepersPerTeam,
+                  paidOnly: event.payment_tracking_enabled && paidOnly,
                 }),
               )
             }
             disabled={
               playersPerTeam + goalkeepersPerTeam === 0 ||
               !participants.some(
-                (participant) => participant.status === 'CONFIRMED',
+                (participant) =>
+                  participant.status === 'CONFIRMED' &&
+                  (!event.payment_tracking_enabled ||
+                    !paidOnly ||
+                    participant.paid),
               )
             }
           >

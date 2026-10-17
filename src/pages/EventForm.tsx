@@ -1,15 +1,31 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Logo } from '@/components/Logo';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { Event, EventRule } from '@/lib/types';
-import { ArrowLeft, Loader2, Plus, X, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Logo } from "@/components/Logo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Event, EventRule } from "@/lib/types";
+import { ArrowLeft, Loader2, Plus, X, Save } from "lucide-react";
+import { toast } from "sonner";
+
+const isMissingOrganizerUser = (error: unknown) => {
+  if (!error || typeof error !== "object" || !("code" in error)) {
+    return false;
+  }
+
+  const message =
+    "message" in error && typeof error.message === "string"
+      ? error.message
+      : "";
+
+  return (
+    error.code === "23503" &&
+    message.includes("events_organizer_id_fkey")
+  );
+};
 
 const EventForm = () => {
   const { id } = useParams();
@@ -21,21 +37,22 @@ const EventForm = () => {
   const [saving, setSaving] = useState(false);
 
   // Form fields
-  const [name, setName] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('19:00');
-  const [location, setLocation] = useState('');
-  const [googleMapsUrl, setGoogleMapsUrl] = useState('');
+  const [name, setName] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("19:00");
+  const [location, setLocation] = useState("");
+  const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [playerLimit, setPlayerLimit] = useState(20);
   const [goalkeeperLimit, setGoalkeeperLimit] = useState(4);
   const [isOpen, setIsOpen] = useState(true);
   const [requiresRegistration, setRequiresRegistration] = useState(true);
+  const [paymentTrackingEnabled, setPaymentTrackingEnabled] = useState(false);
   const [rules, setRules] = useState<string[]>([]);
-  const [newRule, setNewRule] = useState('');
+  const [newRule, setNewRule] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, authLoading, navigate]);
 
@@ -49,16 +66,16 @@ const EventForm = () => {
     setLoading(true);
     try {
       const { data: eventData, error: eventError } = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', id)
-        .eq('organizer_id', user?.id)
+        .from("events")
+        .select("*")
+        .eq("id", id)
+        .eq("organizer_id", user?.id)
         .maybeSingle();
 
       if (eventError) throw eventError;
       if (!eventData) {
-        toast.error('Evento não encontrado');
-        navigate('/dashboard');
+        toast.error("Evento não encontrado");
+        navigate("/dashboard");
         return;
       }
 
@@ -66,23 +83,24 @@ const EventForm = () => {
       setDate(eventData.date);
       setTime(eventData.time);
       setLocation(eventData.location);
-      setGoogleMapsUrl(eventData.google_maps_url || '');
+      setGoogleMapsUrl(eventData.google_maps_url || "");
       setPlayerLimit(eventData.player_limit);
       setGoalkeeperLimit(eventData.goalkeeper_limit);
       setIsOpen(eventData.is_open);
       setRequiresRegistration(eventData.requires_registration);
+      setPaymentTrackingEnabled(eventData.payment_tracking_enabled);
 
       const { data: rulesData, error: rulesError } = await supabase
-        .from('event_rules')
-        .select('*')
-        .eq('event_id', id)
-        .order('order_index', { ascending: true });
+        .from("event_rules")
+        .select("*")
+        .eq("event_id", id)
+        .order("order_index", { ascending: true });
 
       if (rulesError) throw rulesError;
       setRules(rulesData?.map((r) => r.rule_text) || []);
     } catch (error) {
-      console.error('Error fetching event:', error);
-      toast.error('Erro ao carregar evento');
+      console.error("Error fetching event:", error);
+      toast.error("Erro ao carregar evento");
     } finally {
       setLoading(false);
     }
@@ -91,7 +109,7 @@ const EventForm = () => {
   const addRule = () => {
     if (newRule.trim()) {
       setRules([...rules, newRule.trim()]);
-      setNewRule('');
+      setNewRule("");
     }
   };
 
@@ -104,7 +122,7 @@ const EventForm = () => {
     if (!user) return;
 
     if (!name.trim() || !date || !time || !location.trim()) {
-      toast.error('Preencha todos os campos obrigatórios');
+      toast.error("Preencha todos os campos obrigatórios");
       return;
     }
 
@@ -115,7 +133,7 @@ const EventForm = () => {
 
       if (isEditing) {
         const { error } = await supabase
-          .from('events')
+          .from("events")
           .update({
             name: name.trim(),
             date,
@@ -126,16 +144,17 @@ const EventForm = () => {
             goalkeeper_limit: goalkeeperLimit,
             is_open: isOpen,
             requires_registration: requiresRegistration,
+            payment_tracking_enabled: paymentTrackingEnabled,
           })
-          .eq('id', id);
+          .eq("id", id);
 
         if (error) throw error;
 
         // Delete existing rules and re-add
-        await supabase.from('event_rules').delete().eq('event_id', id);
+        await supabase.from("event_rules").delete().eq("event_id", id);
       } else {
         const { data, error } = await supabase
-          .from('events')
+          .from("events")
           .insert({
             organizer_id: user.id,
             name: name.trim(),
@@ -146,6 +165,7 @@ const EventForm = () => {
             player_limit: playerLimit,
             goalkeeper_limit: goalkeeperLimit,
             requires_registration: requiresRegistration,
+            payment_tracking_enabled: paymentTrackingEnabled,
             is_open: isOpen,
           })
           .select()
@@ -164,17 +184,21 @@ const EventForm = () => {
         }));
 
         const { error: rulesError } = await supabase
-          .from('event_rules')
+          .from("event_rules")
           .insert(rulesData);
 
         if (rulesError) throw rulesError;
       }
 
-      toast.success(isEditing ? 'Evento atualizado!' : 'Evento criado!');
+      toast.success(isEditing ? "Evento atualizado!" : "Evento criado!");
       navigate(`/event/${eventId}`);
-    } catch (error: any) {
-      console.error('Error saving event:', error);
-      toast.error('Erro ao salvar evento');
+    } catch (error: unknown) {
+      console.error("Error saving event:", error);
+      toast.error(
+        isMissingOrganizerUser(error)
+          ? "Sua sessão pertence a um usuário que não existe neste banco local. Saia e entre novamente; se continuar, cadastre a conta no Supabase local usado pelo app."
+          : "Erro ao salvar evento",
+      );
     } finally {
       setSaving(false);
     }
@@ -195,7 +219,7 @@ const EventForm = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -203,7 +227,7 @@ const EventForm = () => {
         </header>
 
         <h1 className="text-2xl font-bold mb-6">
-          {isEditing ? 'Editar Jogo' : 'Novo Jogo'}
+          {isEditing ? "Editar Jogo" : "Novo Jogo"}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -325,11 +349,27 @@ const EventForm = () => {
                 checked={requiresRegistration}
                 onCheckedChange={(e) => {
                   if (isEditing) {
-                    return toast.warning('Não é possível alterar essa opção');
+                    return toast.warning("Não é possível alterar essa opção");
                   }
 
                   setRequiresRegistration(e);
                 }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-2 border-t border-border/30 pt-4">
+              <div>
+                <Label htmlFor="paymentTrackingEnabled">
+                  Controlar pagamentos
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  Permite marcar participantes como pagos e filtrar o sorteio.
+                </p>
+              </div>
+              <Switch
+                id="paymentTrackingEnabled"
+                checked={paymentTrackingEnabled}
+                onCheckedChange={setPaymentTrackingEnabled}
               />
             </div>
           </div>
@@ -367,7 +407,7 @@ const EventForm = () => {
                 className="h-10 bg-secondary border-border/50"
                 maxLength={200}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === "Enter") {
                     e.preventDefault();
                     addRule();
                   }
@@ -398,7 +438,7 @@ const EventForm = () => {
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                {isEditing ? 'Salvar Alterações' : 'Criar Jogo'}
+                {isEditing ? "Salvar Alterações" : "Criar Jogo"}
               </>
             )}
           </Button>

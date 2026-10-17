@@ -57,7 +57,9 @@ export type Database = {
           location: string
           name: string
           organizer_id: string
+          payment_tracking_enabled: boolean
           player_limit: number
+          requires_registration: boolean
           time: string
           updated_at: string
         }
@@ -71,7 +73,9 @@ export type Database = {
           location: string
           name: string
           organizer_id: string
+          payment_tracking_enabled?: boolean
           player_limit?: number
+          requires_registration?: boolean
           time: string
           updated_at?: string
         }
@@ -85,7 +89,9 @@ export type Database = {
           location?: string
           name?: string
           organizer_id?: string
+          payment_tracking_enabled?: boolean
           player_limit?: number
+          requires_registration?: boolean
           time?: string
           updated_at?: string
         }
@@ -127,6 +133,7 @@ export type Database = {
           event_id: string
           id: string
           name: string
+          paid: boolean
           role: Database["public"]["Enums"]["participant_role"]
           status: Database["public"]["Enums"]["participant_status"]
           user_id: string | null
@@ -136,6 +143,7 @@ export type Database = {
           event_id: string
           id?: string
           name: string
+          paid?: boolean
           role: Database["public"]["Enums"]["participant_role"]
           status?: Database["public"]["Enums"]["participant_status"]
           user_id?: string | null
@@ -145,6 +153,7 @@ export type Database = {
           event_id?: string
           id?: string
           name?: string
+          paid?: boolean
           role?: Database["public"]["Enums"]["participant_role"]
           status?: Database["public"]["Enums"]["participant_status"]
           user_id?: string | null

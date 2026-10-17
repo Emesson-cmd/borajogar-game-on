@@ -14,14 +14,18 @@ export function createTeams(
   const confirmedPlayers = shuffle(
     participants.filter(
       (participant) =>
-        participant.role === 'PLAYER' && participant.status === 'CONFIRMED',
+        participant.role === 'PLAYER' &&
+        participant.status === 'CONFIRMED' &&
+        (!options.paidOnly || participant.paid),
     ),
     random,
   );
   const confirmedGoalkeepers = shuffle(
     participants.filter(
       (participant) =>
-        participant.role === 'GOALKEEPER' && participant.status === 'CONFIRMED',
+        participant.role === 'GOALKEEPER' &&
+        participant.status === 'CONFIRMED' &&
+        (!options.paidOnly || participant.paid),
     ),
     random,
   );
@@ -62,6 +66,7 @@ export interface TeamDrawOptions {
   teamCount: number;
   playersPerTeam: number;
   goalkeepersPerTeam: number;
+  paidOnly?: boolean;
 }
 
 export interface TeamDrawResult {

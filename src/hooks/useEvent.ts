@@ -46,7 +46,7 @@ export function useEvent(eventId: string | undefined) {
 
       if (rulesError) throw rulesError;
       setRules(rulesData || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching event:', error);
       toast.error('Erro ao carregar evento');
     } finally {
@@ -153,6 +153,7 @@ export function useEvent(eventId: string | undefined) {
         name: trimmedName,
         role,
         status,
+        paid: false,
         user_id: userId || null,
       });
 
@@ -172,7 +173,7 @@ export function useEvent(eventId: string | undefined) {
         toast.success('Inscrição confirmada!');
       }
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error adding participant:', error);
       toast.error('Erro ao fazer inscrição');
       return false;
@@ -209,7 +210,7 @@ export function useEvent(eventId: string | undefined) {
 
       toast.success('Removido da lista');
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error removing participant:', error);
       toast.error('Erro ao remover');
       return false;
@@ -266,9 +267,31 @@ export function useEvent(eventId: string | undefined) {
         toast.success('Posição alterada!');
       }
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error switching role:', error);
       toast.error('Erro ao trocar posição');
+      return false;
+    }
+  };
+
+  const togglePayment = async (
+    participantId: string,
+    paid: boolean,
+  ): Promise<boolean> => {
+    if (!event?.payment_tracking_enabled) return false;
+
+    try {
+      const { error } = await supabase
+        .from('participants')
+        .update({ paid })
+        .eq('id', participantId)
+        .eq('event_id', event.id);
+
+      if (error) throw error;
+      return true;
+    } catch (error: unknown) {
+      console.error('Error updating participant payment:', error);
+      toast.error('Erro ao atualizar pagamento');
       return false;
     }
   };
@@ -287,5 +310,6 @@ export function useEvent(eventId: string | undefined) {
     addParticipant,
     removeParticipant,
     switchRole,
+    togglePayment,
   };
 }
